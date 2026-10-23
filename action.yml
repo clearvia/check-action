@@ -1,0 +1,82 @@
+name: Clearvia check
+description: Check a repository against the Clearvia deployment standard and upload the run with GitHub OIDC, storing no secret.
+author: Clearvia
+branding:
+  icon: check-circle
+  color: blue
+
+inputs:
+  organization:
+    description: Your Clearvia organization's slug. Required to upload without an API key.
+    required: false
+    default: ""
+  project:
+    description: The project's slug. Leave empty when this repository is linked to one project of the organization.
+    required: false
+    default: ""
+  path:
+    description: The directory to check, relative to the workspace.
+    required: false
+    default: "."
+  region:
+    description: Evaluate one region's rules, china or international. Default every rule.
+    required: false
+    default: ""
+  level:
+    description: The level the project must reach, c0 to c3.
+    required: false
+    default: c0
+  fail-below-level:
+    description: Fail the step when the project is below `level`. Set false to report only.
+    required: false
+    default: "true"
+  upload:
+    description: Upload the report to Clearvia as a check run.
+    required: false
+    default: "true"
+  api-url:
+    description: The Clearvia API. The OIDC token is requested for its origin as audience.
+    required: false
+    default: https://api.clearvia.app
+  cli-version:
+    description: The CLI release to install, such as 0.59.0, or latest.
+    required: false
+    default: latest
+  cli-repository:
+    description: The GitHub repository whose releases carry clearvia-cli.tgz.
+    required: false
+    default: clearvia/check-action
+  cli-tarball:
+    description: A local clearvia-cli.tgz to install instead of downloading a release.
+    required: false
+    default: ""
+
+outputs:
+  run-url:
+    description: The uploaded check run in the Clearvia console; empty when nothing was uploaded.
+    value: ${{ steps.check.outputs.run-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install the clearvia CLI
+      shell: bash
+      env:
+        CLI_REPOSITORY: ${{ inputs.cli-repository }}
+        CLI_TARBALL: ${{ inputs.cli-tarball }}
+        CLI_VERSION: ${{ inputs.cli-version }}
+      run: '"${GITHUB_ACTION_PATH}/install.sh"'
+
+    - name: Run clearvia check
+      id: check
+      shell: bash
+      env:
+        CHECK_FAIL_BELOW_LEVEL: ${{ inputs.fail-below-level }}
+        CHECK_LEVEL: ${{ inputs.level }}
+        CHECK_PATH: ${{ inputs.path }}
+        CHECK_REGION: ${{ inputs.region }}
+        CHECK_UPLOAD: ${{ inputs.upload }}
+        INPUT_API_URL: ${{ inputs.api-url }}
+        INPUT_ORGANIZATION: ${{ inputs.organization }}
+        INPUT_PROJECT: ${{ inputs.project }}
+      run: '"${GITHUB_ACTION_PATH}/check.sh"'
