@@ -53,6 +53,8 @@ jobs:
 | `cli-repository`   | `clearvia/check-action`    | Where the CLI releases live.                                                |
 | `cli-tarball`      |                            | A local `clearvia-cli.tgz` to install instead of a download.                |
 
+On `pull_request` events the run records the pull request's head commit and branch, not GitHub's merge commit, so the Clearvia check (with the GitHub App) shows on the pull request. `CLEARVIA_COMMIT_SHA` and `CLEARVIA_REF` in the job's environment override both.
+
 Output `run-url` is the uploaded run in the console. The text report goes to
 the log and the job summary.
 

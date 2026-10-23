@@ -17,6 +17,12 @@ arguments=(check "${CHECK_PATH:-.}" --level "${CHECK_LEVEL:-c0}")
 [[ -n "${INPUT_ORGANIZATION:-}" ]] && export CLEARVIA_ORGANIZATION="${INPUT_ORGANIZATION}"
 [[ -n "${INPUT_PROJECT:-}" ]] && export CLEARVIA_PROJECT="${INPUT_PROJECT}"
 
+# On a pull request GITHUB_SHA is GitHub's merge commit and GITHUB_REF_NAME is
+# "N/merge"; the run describes the pull request's head commit and branch, where
+# its check shows. Values the job sets itself win.
+[[ -n "${PR_HEAD_SHA:-}" && -z "${CLEARVIA_COMMIT_SHA:-}" ]] && export CLEARVIA_COMMIT_SHA="${PR_HEAD_SHA}"
+[[ -n "${PR_HEAD_REF:-}" && -z "${CLEARVIA_REF:-}" ]] && export CLEARVIA_REF="${PR_HEAD_REF}"
+
 "${clearvia}" "${arguments[@]}" >"${directory}/report.txt" 2>"${directory}/stderr.txt"
 status=$?
 cat "${directory}/report.txt"

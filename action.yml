@@ -79,4 +79,6 @@ runs:
         INPUT_API_URL: ${{ inputs.api-url }}
         INPUT_ORGANIZATION: ${{ inputs.organization }}
         INPUT_PROJECT: ${{ inputs.project }}
+        PR_HEAD_REF: ${{ github.head_ref }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       run: '"${GITHUB_ACTION_PATH}/check.sh"'
